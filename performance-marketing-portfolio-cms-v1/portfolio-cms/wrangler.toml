@@ -10,4 +10,4 @@ run_worker_first = true
 [[d1_databases]]
 binding = "DB"
 database_name = "portfolio-content"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "80e8bffe-9182-4dd5-ae97-0884f014e282"
