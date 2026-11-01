@@ -10,7 +10,7 @@ const DEFAULT_CONTENT = {
  tools:["Meta Ads","Google Ads","TikTok Ads","Microsoft Ads","MGID","Google Sheets / Reporting","Adobe Premiere Pro","CapCut","Adobe Photoshop","Adobe Illustrator","Adobe After Effects","Canva"],contactEmail:"",contactLinkedIn:"",contactLocation:"Vietnam"
 };
 const enc=new TextEncoder();
-function b64url(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/=/g,'').replace(/\\+/g,'-').replace(/\\//g,'_')}
+function b64url(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')}
 async function sign(value,secret){const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);return b64url(await crypto.subtle.sign('HMAC',key,enc.encode(value)))}
 async function validSession(req,env){const cookie=req.headers.get('Cookie')||'';const m=cookie.match(/(?:^|; )portfolio_session=([^;]+)/);if(!m||!env.SESSION_SECRET)return false;const [exp,sig]=m[1].split('.');if(!exp||!sig||Number(exp)<Date.now())return false;return(await sign(exp,env.SESSION_SECRET))===sig}
 function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})}
