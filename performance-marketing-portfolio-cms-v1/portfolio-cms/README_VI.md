@@ -1,26 +1,28 @@
-# Portfolio CMS – hướng dẫn triển khai
+# Portfolio CMS — bản tích hợp trên giao diện portfolio hiện tại
 
-## Có gì trong bộ này?
-- `public/index.html`: giao diện portfolio hiện tại, giữ phong cách và bố cục.
-- `public/admin.html`: trang quản trị tại `/admin`.
-- `public/portfolio.js`: lấy nội dung đã lưu từ API và cập nhật phần thông tin/dự án trên website.
-- `worker.js`: API đăng nhập, đọc/lưu nội dung; cookie phiên HttpOnly/Secure/SameSite và chữ ký HMAC.
-- `schema.sql`: cấu trúc bảng D1.
-- `wrangler.toml`: cấu hình Worker + Static Assets + D1.
+## Cấu trúc
+- `public/index.html`: giao diện portfolio Minimal Editorial đã giữ lại và bổ sung dữ liệu thực tế.
+- `public/admin.html`: trang quản trị riêng tại `/admin`.
+- `public/portfolio.js`: đọc nội dung từ API và cập nhật website.
+- `worker.js`: API đăng nhập, phiên quản trị và lưu nội dung vào Cloudflare D1.
+- `schema.sql`: bảng `portfolio_content` (id = 1).
 
-## Lưu ý quan trọng
-Đây là bộ mã nguồn tích hợp để triển khai thử nghiệm, chưa được kết nối vào Cloudflare của bạn và chưa được deploy. Website live hiện tại không bị thay đổi. Bản portfolio nguồn đang có một số placeholder (YOUR NAME, email, tên dự án...) nên hãy thay bằng thông tin đã xác minh trước khi công khai.
+## Cấu hình Cloudflare trước khi deploy
+1. Giữ database D1 `portfolio-content` đã tạo. Lấy đúng Database ID trong trang D1 và điền vào `wrangler.toml`.
+2. Gắn D1 binding tên `DB`; static assets binding tên `ASSETS`.
+3. Tạo Worker secrets `ADMIN_PASSWORD` và `SESSION_SECRET` (chuỗi ngẫu nhiên dài, tối thiểu 32 ký tự). Không ghi các giá trị này vào Git.
+4. Deploy bản staging/preview và kiểm tra `/`, `/admin`, đăng nhập, lưu và tải lại nội dung. Chỉ sau khi kiểm tra mới thay Worker live.
 
-## Triển khai Cloudflare (sau khi tải source lên GitHub)
-1. Trong Cloudflare Dashboard → Workers & Pages → D1 SQL Database, tạo database tên `portfolio-content`.
-2. Mở database → Console và chạy nội dung file `schema.sql`.
-3. Sao chép Database ID, thay `REPLACE_WITH_YOUR_D1_DATABASE_ID` trong `wrangler.toml`.
-4. Cài Wrangler và đăng nhập Cloudflare, sau đó chạy `npx wrangler secret put ADMIN_PASSWORD` và nhập mật khẩu quản trị trực tiếp trong terminal.
-5. Chạy `npx wrangler secret put SESSION_SECRET` và nhập một chuỗi ngẫu nhiên dài (ít nhất 32 ký tự).
-6. Chạy `npx wrangler deploy`.
-7. Mở URL Worker, vào `/admin` để đăng nhập.
+## CMS hiện hỗ trợ
+- Sửa tên hiển thị, chức danh, hero và thông tin kinh nghiệm.
+- Sửa tiêu đề, meta, mô tả, dòng nhấn, URL thumbnail và URL chi tiết cho 4 hạng mục công việc.
+- Sửa danh sách công cụ, email và LinkedIn.
+- Ảnh/video cần có URL HTTPS công khai; upload file trực tiếp lên R2 chưa được tích hợp ở phiên bản này.
 
-Không gửi mật khẩu hoặc SESSION_SECRET qua chat/GitHub. Không commit secrets vào repository.
+## Bảo mật
+- `/admin` không được index.
+- Cookie phiên `HttpOnly`, `Secure`, `SameSite=Strict`, hết hạn sau 8 giờ.
+- API ghi yêu cầu phiên hợp lệ; mật khẩu và secret chỉ đặt trong Cloudflare Worker secrets.
 
-## Giới hạn hiện tại
-CMS hiện cho phép chỉnh sửa tên hiển thị, giới thiệu, chức danh, thông tin kinh nghiệm và mô tả 4 dự án. Chưa có chức năng upload ảnh/video; muốn thêm media cần cấu hình Cloudflare R2. Một số phần văn bản tĩnh khác của template chưa được đưa vào form quản trị. Cần kiểm tra staging trước khi gắn domain hoặc thay website live.
+## Lưu ý
+Không có số liệu hiệu quả quảng cáo hoặc kết quả kinh doanh nào được tự thêm. Các hạng mục portfolio đang mô tả phạm vi công việc đã xác nhận, không tự nhận là case study có thành tích định lượng.
